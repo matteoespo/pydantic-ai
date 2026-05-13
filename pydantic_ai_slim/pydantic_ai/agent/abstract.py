@@ -436,6 +436,7 @@ class AbstractAgent(Generic[AgentDepsT, OutputDataT], ABC):
         event_stream_handler: EventStreamHandler[AgentDepsT] | None = None,
         capabilities: Sequence[AgentCapability[AgentDepsT]] | None = None,
         spec: dict[str, Any] | AgentSpec | None = None,
+        dry_run: bool = False,
     ) -> AgentRunResult[OutputDataT]: ...
 
     @overload
@@ -460,6 +461,7 @@ class AbstractAgent(Generic[AgentDepsT, OutputDataT], ABC):
         event_stream_handler: EventStreamHandler[AgentDepsT] | None = None,
         capabilities: Sequence[AgentCapability[AgentDepsT]] | None = None,
         spec: dict[str, Any] | AgentSpec | None = None,
+        dry_run: bool = False,
     ) -> AgentRunResult[RunOutputDataT]: ...
 
     def run_sync(
@@ -483,6 +485,7 @@ class AbstractAgent(Generic[AgentDepsT, OutputDataT], ABC):
         event_stream_handler: EventStreamHandler[AgentDepsT] | None = None,
         capabilities: Sequence[AgentCapability[AgentDepsT]] | None = None,
         spec: dict[str, Any] | AgentSpec | None = None,
+        dry_run: bool = False,
         **_deprecated_kwargs: Any,
     ) -> AgentRunResult[Any]:
         """Synchronously run the agent with a user prompt.
@@ -538,6 +541,9 @@ class AbstractAgent(Generic[AgentDepsT, OutputDataT], ABC):
 
         if infer_name and self.name is None:
             self._infer_name(inspect.currentframe())
+        
+        if dry_run:
+            return AgentRunResult(output="dry run completed successfully")
 
         return _utils.get_event_loop().run_until_complete(
             self.run(
